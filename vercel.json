@@ -10,5 +10,11 @@
       "routePrefix": "/_/backend",
       "entrypoint": "server.js"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/_/backend/api/$1"
+    }
+  ]
 }

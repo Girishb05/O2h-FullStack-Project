@@ -1,21 +1,19 @@
 const { Sequelize } = require('sequelize');
 
-let sequelize;
+// Initialize Sequelize synchronously
+const sequelize = new Sequelize(process.env.SUPABASE_URL, {
+  dialect: 'postgres',
+  logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  }
+});
 
 const connectDB = async () => {
   try {
-    // Initialize Sequelize with the Supabase connection URL
-    sequelize = new Sequelize(process.env.SUPABASE_URL, {
-      dialect: 'postgres',
-      logging: false,
-      dialectOptions: {
-        ssl: {
-          require: true,
-          rejectUnauthorized: false
-        }
-      }
-    });
-
     await sequelize.authenticate();
     console.log(`✅ Supabase PostgreSQL Connected successfully.`);
     
@@ -27,12 +25,10 @@ const connectDB = async () => {
     console.log(`✅ Database synced`);
   } catch (error) {
     console.error(`❌ Database Connection Error: ${error.message}`);
-    process.exit(1);
   }
 };
 
-// Export a proxy so that `sequelize` is available after `connectDB` is called
 module.exports = { 
-  get sequelize() { return sequelize; },
+  sequelize,
   connectDB 
 };
