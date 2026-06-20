@@ -26,7 +26,8 @@ const Task = sequelize.define('Task', {
     },
   },
   status: {
-    type: DataTypes.ENUM('Pending', 'In Progress', 'Completed'),
+    // Using STRING instead of ENUM for reliable PostgreSQL support on Vercel
+    type: DataTypes.STRING,
     defaultValue: 'Pending',
     validate: {
       isIn: {
