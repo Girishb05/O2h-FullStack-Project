@@ -12,8 +12,18 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// Connect to database asynchronously (Vercel may keep container alive across requests)
-connectDB();
+// Middleware to ensure DB connection is active before processing routes
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      message: `Database connection failed: ${error.message}` 
+    });
+  }
+});
 
 // Register routes synchronously
 const taskRoutes = require('./routes/taskRoutes');
