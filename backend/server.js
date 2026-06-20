@@ -7,10 +7,29 @@ const { connectDB } = require('./config/db');
 // Initialize Express app
 const app = express();
 
-// Middleware
-app.use(cors());
+// CORS — allow Vercel domain + localhost for development
+const allowedOrigins = [
+  /^http:\/\/localhost:\d+$/,         // any localhost port
+  /^http:\/\/192\.168\.\d+\.\d+:\d+$/, // local network (mobile)
+  /\.vercel\.app$/,                   // any *.vercel.app domain
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow requests with no origin (curl, Postman, server-side)
+    if (!origin) return callback(null, true);
+    const allowed = allowedOrigins.some((pattern) =>
+      typeof pattern === 'string' ? pattern === origin : pattern.test(origin)
+    );
+    callback(allowed ? null : new Error('Not allowed by CORS'), allowed);
+  },
+  credentials: true,
+}));
+
 app.use(express.json());
-app.use(morgan('dev'));
+if (process.env.NODE_ENV !== 'production') {
+  app.use(morgan('dev'));
+}
 
 // Middleware to ensure DB connection is active before processing routes
 app.use(async (req, res, next) => {
